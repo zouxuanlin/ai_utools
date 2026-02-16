@@ -5,9 +5,11 @@
 import threading
 import time
 import logging
-from pynput import keyboard
-from pynput.keyboard import Key, KeyCode, Controller
 from typing import Callable, Optional
+
+# pynput导入将在需要时动态进行
+# from pynput import keyboard
+# from pynput.keyboard import Key, KeyCode, Controller
 
 
 class HotkeyManager:
@@ -46,6 +48,8 @@ class HotkeyManager:
     
     def _parse_modifiers(self, modifiers: list) -> set:
         """解析修饰键"""
+        from pynput.keyboard import Key
+        
         modifier_map = {
             "command": Key.cmd,
             "ctrl": Key.ctrl,
@@ -67,6 +71,8 @@ class HotkeyManager:
     
     def _parse_key(self, key_str: str):
         """解析触发键"""
+        from pynput.keyboard import Key, KeyCode
+        
         # 特殊键映射
         special_keys = {
             "space": Key.space,
@@ -166,6 +172,7 @@ class HotkeyManager:
             return
         
         try:
+            from pynput import keyboard
             self.listener = keyboard.Listener(
                 on_press=self._on_press,
                 on_release=self._on_release
@@ -176,6 +183,10 @@ class HotkeyManager:
             hotkey_str = self._get_hotkey_string()
             self.logger.info(f"快捷键监听已启动: {hotkey_str}")
             
+        except ImportError:
+            self.logger.error("pynput库未安装，无法启动快捷键监听")
+            self.is_listening = False
+            raise
         except Exception as e:
             self.logger.error(f"启动快捷键监听失败: {e}")
             self.is_listening = False

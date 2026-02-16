@@ -8,7 +8,7 @@ hotkey:
 
 # AI配置
 ai:
-  provider: "openai"  # 可选: "openai", "local", "none"
+  provider: "rule"  # 可选: "openai", "local", "rule"
   openai_api_key: ""   # 留空则从环境变量OPENAI_API_KEY读取
   model: "gpt-4o-mini"
   temperature: 0.2
