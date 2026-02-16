@@ -5,7 +5,7 @@
 ## 功能特性
 
 - **全局快捷键**: 默认 `Cmd+Shift+P` 打开/关闭启动器
-- **智能命令解析**: 使用AI（OpenAI GPT或本地模型）理解自然语言指令
+- **智能命令解析**: 使用AI（OpenAI GPT、DeepSeek或本地模型）理解自然语言指令
 - **系统操作执行**: 执行文件操作、打开应用、搜索、计算等
 - **简洁UI**: 类似Alfred的浮动输入框
 - **可扩展**: 支持插件系统
@@ -15,7 +15,7 @@
 ### 前置要求
 - macOS 10.15+
 - Python 3.8+
-- OpenAI API密钥（可选，如使用本地模型则不需要）
+- OpenAI API密钥或DeepSeek API密钥（可选，如使用本地模型或规则引擎则不需要）
 
 ### 安装步骤
 
@@ -60,10 +60,13 @@ hotkey:
 ### AI配置
 ```yaml
 ai:
-  provider: "openai"  # 或 "local"
-  openai_api_key: "your-api-key"
-  model: "gpt-4o-mini"
-  local_model_path: "models/llama-2-7b.Q4_K_M.gguf"
+  provider: "deepseek"  # 可选: "openai", "deepseek", "local", "rule"
+  openai_api_key: ""   # 留空则从环境变量OPENAI_API_KEY读取
+  deepseek_api_key: ""   # 留空则从环境变量DEEPSEEK_APIKEY读取
+  model: "gpt-4o-mini"  # OpenAI模型
+  deepseek_model: "deepseek-chat"  # DeepSeek模型
+  local_model:
+    path: "models/llama-2-7b.Q4_K_M.gguf"
 ```
 
 ## 使用示例
