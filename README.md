@@ -13,9 +13,12 @@
 ## 安装与运行
 
 ### 前置要求
-- macOS 10.15+
+- macOS 10.15+（推荐macOS 12+）
 - Python 3.8+
-- OpenAI API密钥或DeepSeek API密钥（可选，如使用本地模型或规则引擎则不需要）
+- 可选API密钥：
+  - OpenAI API密钥（如果使用OpenAI GPT）
+  - DeepSeek API密钥（如果使用DeepSeek AI）
+  - 如使用本地模型或规则引擎则不需要API密钥
 
 ### 安装步骤
 
@@ -25,26 +28,73 @@ git clone <repository>
 cd ai_utools
 ```
 
-2. 安装依赖
+2. 安装依赖（推荐使用虚拟环境）
 ```bash
+# 创建虚拟环境（可选）
+python3 -m venv venv
+source venv/bin/activate
+
+# 安装核心依赖
 pip install -r requirements.txt
+
+# 如果安装失败（特别是pynput或pyobjc），尝试降级版本：
+# pip install 'pynput==1.7.3' 'pyobjc-core<9.0' 'pyobjc-framework-Cocoa<9.0' 'pyobjc-framework-Quartz<9.0'
 ```
 
-3. 配置API密钥
+3. 配置应用
 ```bash
-cp config.example.yaml config.yaml
-# 编辑config.yaml，填入OpenAI API密钥
+# 运行配置向导（交互式）
+python3 run_setup.py
+
+# 或手动编辑配置文件
+# 编辑 config.yaml 文件，设置API密钥等
+# 使用环境变量设置API密钥（推荐）：
+export DEEPSEEK_APIKEY="your_deepseek_api_key"
+export OPENAI_API_KEY="your_openai_api_key"
 ```
 
-4. 运行
+4. 测试运行
 ```bash
-python main.py
+# 测试基本功能（无UI）
+python3 main.py --test
+
+# 完整运行（需要GUI支持）
+python3 main.py
 ```
 
 5. 设置为开机启动（可选）
 ```bash
 # 将应用添加到登录项
-python setup.py --install-autostart
+python3 main.py --install-autostart
+# 或
+python3 run_setup.py --install-autostart
+```
+
+### 故障排除
+
+#### 1. pynput/pyobjc安装失败
+如果在Python 3.8或旧版macOS上安装失败，使用降级版本：
+```bash
+pip uninstall pynput pyobjc-framework-Quartz pyobjc-framework-Cocoa pyobjc-core
+pip install 'pynput==1.7.3' 'pyobjc-core<9.0' 'pyobjc-framework-Cocoa<9.0' 'pyobjc-framework-Quartz<9.0'
+```
+
+#### 2. 快捷键监听失败
+如果全局快捷键无法工作，应用会自动切换到虚拟快捷键模式，仍可通过UI测试功能。
+
+#### 3. 配置向导EOFError
+如果在非交互式环境运行配置向导，使用环境变量或直接编辑`config.yaml`文件。
+
+#### 4. DeepSeek API密钥配置
+确保设置了环境变量：
+```bash
+export DEEPSEEK_APIKEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+或在`config.yaml`中设置：
+```yaml
+ai:
+  provider: "deepseek"
+  deepseek_api_key: "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ```
 
 ## 配置

@@ -218,22 +218,31 @@ class AIuTools:
 
 def check_dependencies():
     """检查依赖是否安装"""
+    # 必需的核心依赖
+    # PyYAML包安装后模块名为yaml，pynput/keyboard为可选
     required_packages = [
-        "PyYAML",
-        "pynput",
-        "keyboard",
+        ("yaml", "PyYAML"),  # (模块名, 包名)
     ]
     
     missing_packages = []
     
-    for package in required_packages:
+    for module_name, package_name in required_packages:
+        try:
+            __import__(module_name)
+        except ImportError:
+            missing_packages.append(package_name)
+    
+    # 可选依赖（pynput和keyboard）如果导入失败只警告
+    optional_packages = ["pynput", "keyboard"]
+    for package in optional_packages:
         try:
             __import__(package.replace("-", "_"))
-        except ImportError:
-            missing_packages.append(package)
+        except Exception as e:
+            print(f"⚠️  可选依赖 {package} 导入失败: {e}")
+            print(f"   将使用虚拟快捷键管理器，全局快捷键功能受限")
     
     if missing_packages:
-        print("缺少依赖包:")
+        print("缺少必需依赖包:")
         for package in missing_packages:
             print(f"  - {package}")
         print("\n请运行以下命令安装:")
@@ -245,43 +254,58 @@ def check_dependencies():
 
 def setup_configuration():
     """交互式配置设置"""
+    import sys
     from config import config
     
     print("=== AI uTools 配置向导 ===")
     print()
     
+    interactive = sys.stdin.isatty()
+    
     # 检查OpenAI API密钥
     api_key = config.openai_api_key
     if not api_key:
         print("未检测到OpenAI API密钥")
-        choice = input("是否要配置OpenAI API密钥？(y/n): ").strip().lower()
-        if choice == 'y':
-            api_key = input("请输入OpenAI API密钥: ").strip()
-            config.set("ai.openai_api_key", api_key)
-            if config.save():
-                print("API密钥已保存")
-            else:
-                print("保存失败")
+        if interactive:
+            try:
+                choice = input("是否要配置OpenAI API密钥？(y/n): ").strip().lower()
+                if choice == 'y':
+                    api_key = input("请输入OpenAI API密钥: ").strip()
+                    config.set("ai.openai_api_key", api_key)
+                    if config.save():
+                        print("API密钥已保存")
+                    else:
+                        print("保存失败")
+            except EOFError:
+                print("检测到非交互式输入，跳过API密钥配置")
+        else:
+            print("非交互式终端，跳过API密钥配置")
     
     # 检查快捷键配置
     hotkey_modifier = config.hotkey_modifier
     hotkey_key = config.hotkey_key
     print(f"当前快捷键: {hotkey_modifier}+{hotkey_key}")
     
-    choice = input("是否要更改快捷键？(y/n): ").strip().lower()
-    if choice == 'y':
-        print("可用的修饰键: command, ctrl, shift, alt")
-        modifiers = input("请输入修饰键（用逗号分隔）: ").strip()
-        if modifiers:
-            modifier_list = [m.strip() for m in modifiers.split(",")]
-            config.set("hotkey.modifier", modifier_list)
-        
-        key = input("请输入触发键（如 p, space, enter）: ").strip()
-        if key:
-            config.set("hotkey.key", key)
-        
-        if config.save():
-            print("快捷键配置已保存")
+    if interactive:
+        try:
+            choice = input("是否要更改快捷键？(y/n): ").strip().lower()
+            if choice == 'y':
+                print("可用的修饰键: command, ctrl, shift, alt")
+                modifiers = input("请输入修饰键（用逗号分隔）: ").strip()
+                if modifiers:
+                    modifier_list = [m.strip() for m in modifiers.split(",")]
+                    config.set("hotkey.modifier", modifier_list)
+                
+                key = input("请输入触发键（如 p, space, enter）: ").strip()
+                if key:
+                    config.set("hotkey.key", key)
+                
+                if config.save():
+                    print("快捷键配置已保存")
+        except EOFError:
+            print("检测到非交互式输入，跳过快捷键配置")
+    else:
+        print("非交互式终端，跳过快捷键配置")
     
     print("配置完成！")
     print()

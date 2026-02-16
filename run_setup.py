@@ -57,29 +57,34 @@ def check_dependencies():
     """检查依赖包"""
     print_header("检查依赖包")
     
+    # 必需的核心依赖
+    # PyYAML包安装后模块名为yaml，pynput/keyboard为可选
     required_packages = [
-        ("PyYAML", "yaml"),
-        ("pynput", "pynput"),
-        ("keyboard", "keyboard"),
+        ("yaml", "PyYAML"),  # (模块名, 包名)
     ]
     
     missing_packages = []
-    optional_missing = []
     
-    for package_name, import_name in required_packages:
+    for module_name, package_name in required_packages:
         try:
-            __import__(import_name)
+            __import__(module_name)
             print(f"✓ {package_name}")
         except ImportError:
-            if package_name in ["pynput", "keyboard"]:
-                print(f"⚠ {package_name} (快捷键功能需要)")
-                missing_packages.append(package_name)
-            else:
-                print(f"✗ {package_name}")
-                missing_packages.append(package_name)
+            print(f"✗ {package_name}")
+            missing_packages.append(package_name)
+    
+    # 可选依赖（pynput和keyboard）如果导入失败只警告
+    optional_packages = ["pynput", "keyboard"]
+    for package in optional_packages:
+        try:
+            __import__(package.replace("-", "_"))
+            print(f"✓ {package}")
+        except Exception as e:
+            print(f"⚠ {package} 导入失败: {e}")
+            print(f"   将使用虚拟快捷键管理器，全局快捷键功能受限")
     
     if missing_packages:
-        print(f"\n缺少依赖包: {', '.join(missing_packages)}")
+        print(f"\n缺少必需依赖包: {', '.join(missing_packages)}")
         print("请运行以下命令安装:")
         
         # 根据Python版本提供不同建议
@@ -95,8 +100,9 @@ def check_dependencies():
         print("\n注意: pynput库可能需要macOS辅助功能权限")
         print("安装后请前往: 系统设置 > 隐私与安全性 > 辅助功能")
         print("并添加终端或Python应用程序到允许列表")
+        return False
     
-    return len(missing_packages) == 0
+    return True
 
 def setup_configuration():
     """配置设置（交互式或非交互式）"""
