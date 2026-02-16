@@ -170,6 +170,90 @@ class OpenAIAgent(AIAgent):
         }
 
 
+class DeepSeekAgent(AIAgent):
+    """DeepSeek API代理"""
+    
+    def __init__(self):
+        super().__init__()
+        self.api_key = config.deepseek_api_key
+        self.model = config.get("ai.deepseek_model", "deepseek-chat")
+        self.temperature = config.get("ai.temperature", 0.2)
+        self.max_tokens = config.get("ai.max_tokens", 500)
+        
+        if not self.api_key:
+            self.logger.warning("DeepSeek API密钥未配置")
+    
+    def parse_command(self, user_input: str) -> Dict[str, Any]:
+        """
+        使用DeepSeek API解析命令
+        
+        Args:
+            user_input: 用户输入的自然语言命令
+            
+        Returns:
+            解析后的结构化命令
+        """
+        if not self.api_key:
+            return self._create_error_response("DeepSeek API密钥未配置")
+        
+        try:
+            # 构建消息
+            messages = [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": user_input}
+            ]
+            
+            # 调用DeepSeek API（兼容OpenAI）
+            import openai
+            client = openai.OpenAI(
+                api_key=self.api_key,
+                base_url="https://api.deepseek.com"
+            )
+            
+            response = client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+                response_format={"type": "json_object"}
+            )
+            
+            response_text = response.choices[0].message.content
+            
+            # 提取JSON
+            result = self._extract_json_from_response(response_text)
+            
+            # 添加原始输入
+            result["original_input"] = user_input
+            
+            self.logger.info(f"DeepSeek解析结果: {result}")
+            return result
+            
+        except ImportError:
+            self.logger.error("openai库未安装，请运行: pip install openai")
+            return self._create_error_response("OpenAI库未安装")
+        except openai.AuthenticationError:
+            self.logger.error("DeepSeek API认证失败")
+            return self._create_error_response("DeepSeek API认证失败")
+        except openai.RateLimitError:
+            self.logger.error("DeepSeek API速率限制")
+            return self._create_error_response("API调用过于频繁，请稍后再试")
+        except Exception as e:
+            self.logger.error(f"DeepSeek API调用失败: {e}")
+            return self._create_error_response(f"AI解析失败: {str(e)[:50]}")
+    
+    def _create_error_response(self, error_message: str) -> Dict[str, Any]:
+        """创建错误响应"""
+        return {
+            "action": "error",
+            "target": "",
+            "parameters": {"error": error_message},
+            "execution_command": "",
+            "display_text": f"错误: {error_message}",
+            "original_input": ""
+        }
+
+
 class LocalAIAgent(AIAgent):
     """本地AI模型代理"""
     
@@ -452,6 +536,12 @@ def create_ai_agent() -> AIAgent:
         # 检查API密钥
         if not agent.api_key:
             logging.warning("OpenAI API密钥未配置，回退到规则引擎")
+            agent = SimpleRuleBasedAgent()
+    elif provider == "deepseek":
+        agent = DeepSeekAgent()
+        # 检查API密钥
+        if not agent.api_key:
+            logging.warning("DeepSeek API密钥未配置，回退到规则引擎")
             agent = SimpleRuleBasedAgent()
     elif provider == "local":
         agent = LocalAIAgent()

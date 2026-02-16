@@ -37,7 +37,9 @@ class Config:
             "ai": {
                 "provider": "openai",
                 "openai_api_key": "",
+                "deepseek_api_key": "",
                 "model": "gpt-4o-mini",
+                "deepseek_model": "deepseek-chat",
                 "temperature": 0.2,
                 "max_tokens": 500,
                 "local_model": {
@@ -194,6 +196,15 @@ class Config:
         if not key:
             # 从环境变量读取
             key = os.getenv("OPENAI_API_KEY", "")
+        return key
+    
+    @property
+    def deepseek_api_key(self):
+        """获取DeepSeek API密钥"""
+        key = self.get("ai.deepseek_api_key", "")
+        if not key:
+            # 从环境变量读取
+            key = os.getenv("DEEPSEEK_APIKEY", "")
         return key
     
     @property

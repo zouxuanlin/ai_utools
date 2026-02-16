@@ -112,7 +112,9 @@ def setup_configuration():
         "ai": {
             "provider": "rule",  # 默认使用规则引擎，避免API依赖
             "openai_api_key": "",
+            "deepseek_api_key": "",
             "model": "gpt-4o-mini",
+            "deepseek_model": "deepseek-chat",
             "temperature": 0.2,
             "max_tokens": 500
         },

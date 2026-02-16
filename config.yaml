@@ -8,9 +8,11 @@ hotkey:
 
 # AI配置
 ai:
-  provider: "rule"  # 可选: "openai", "local", "rule"
+  provider: "deepseek"  # 可选: "openai", "deepseek", "local", "rule"
   openai_api_key: ""   # 留空则从环境变量OPENAI_API_KEY读取
+  deepseek_api_key: ""   # 留空则从环境变量DEEPSEEK_APIKEY读取
   model: "gpt-4o-mini"
+  deepseek_model: "deepseek-chat"
   temperature: 0.2
   max_tokens: 500
   
