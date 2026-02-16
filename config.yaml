@@ -1,0 +1,69 @@
+# AI uTools 配置文件
+
+# 快捷键配置
+hotkey:
+  modifier: ["command", "shift"]
+  key: "p"
+  enabled: true
+
+# AI配置
+ai:
+  provider: "openai"  # 可选: "openai", "local", "none"
+  openai_api_key: ""   # 留空则从环境变量OPENAI_API_KEY读取
+  model: "gpt-4o-mini"
+  temperature: 0.2
+  max_tokens: 500
+  
+  # 本地模型配置
+  local_model:
+    path: "models/llama-2-7b.Q4_K_M.gguf"
+    context_size: 2048
+    
+  # 系统提示词
+  system_prompt: |
+    你是一个macOS系统助手，负责解析用户命令并执行相应的系统操作。
+    用户会输入自然语言命令，你需要将其解析为具体的操作指令。
+    支持的操作类型：
+    1. 打开应用：如"打开Safari"、"启动终端"
+    2. 文件操作：如"打开文档文件夹"、"删除test.txt"
+    3. 搜索：如"搜索机器学习"、"谷歌AI新闻"
+    4. 计算：如"计算15%的小费"、"100美元换算成人民币"
+    5. 系统控制：如"清空废纸篓"、"睡眠显示器"
+    6. 信息查询：如"当前时间"、"天气情况"
+    
+    请以JSON格式回复，包含以下字段：
+    {
+      "action": "open_app|file_operation|search|calculate|system_control|query",
+      "target": "具体目标",
+      "parameters": { },
+      "execution_command": "实际执行的shell命令（如需要）",
+      "display_text": "给用户的友好提示"
+    }
+
+# UI配置
+ui:
+  theme: "dark"  # light/dark
+  width: 600
+  height: 80
+  position: "center"  # center/top/bottom
+  opacity: 0.95
+  font_size: 16
+  
+# 系统操作配置
+system:
+  default_browser: "Safari"
+  terminal: "Terminal"
+  file_manager: "Finder"
+  
+# 插件配置
+plugins:
+  enabled: true
+  directory: "plugins"
+  auto_load: true
+  
+# 日志配置
+logging:
+  level: "INFO"
+  file: "logs/ai_utools.log"
+  max_size_mb: 10
+  backup_count: 5

@@ -1,0 +1,30 @@
+# AI uTools 依赖包
+
+# 核心依赖
+PyYAML>=6.0
+pynput>=1.7.6
+keyboard>=0.13.5
+pyobjc>=9.2
+pyobjc-framework-Cocoa>=9.2
+pyobjc-framework-Quartz>=9.2
+
+# UI相关
+tkinter  # macOS自带
+customtkinter>=5.2.0
+
+# AI集成
+openai>=1.12.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# 本地AI模型（可选）
+llama-cpp-python>=0.2.61
+
+# 系统操作
+psutil>=5.9.0
+applescript>=0.3.0
+
+# 开发工具
+black>=23.0.0
+flake8>=6.0.0
+pytest>=7.4.0
